@@ -1,9 +1,9 @@
 'use client';
 
 import { Menu, Package, LogOut, User, Search } from "lucide-react";
-import { 
-  Sheet, 
-  SheetContent, 
+import {
+  Sheet,
+  SheetContent,
   SheetTrigger,
   SheetTitle,
   SheetHeader
@@ -22,9 +22,9 @@ export function MobileMenu({ isAuthenticated = false }) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <Button
+          variant="ghost"
+          size="icon"
           className="md:hidden"
           aria-label="Open mobile menu"
         >
@@ -36,7 +36,7 @@ export function MobileMenu({ isAuthenticated = false }) {
           <SheetTitle className="text-white text-lg font-bold">Menu</SheetTitle>
         </SheetHeader>
         <div className="flex flex-col mt-4">
-          <Link 
+          <Link
             href="/"
             onClick={() => setOpen(false)}
             className="w-full text-center py-2.5 text-white/80 font-roboto text-sm
@@ -45,8 +45,8 @@ export function MobileMenu({ isAuthenticated = false }) {
           >
             Home
           </Link>
-          
-          <Link 
+
+          <Link
             href="/products"
             onClick={() => setOpen(false)}
             className="w-full text-center py-2.5 text-white/80 font-roboto text-sm
@@ -55,8 +55,8 @@ export function MobileMenu({ isAuthenticated = false }) {
           >
             Products
           </Link>
-          
-          <Link 
+
+          <Link
             href="/search"
             onClick={() => setOpen(false)}
             className="w-full text-center py-2.5 text-white/80 font-roboto text-sm
@@ -66,10 +66,10 @@ export function MobileMenu({ isAuthenticated = false }) {
             <Search className="h-4 w-4" />
             Search
           </Link>
-          
+
           {isAuthenticated ? (
             <>
-              <Link 
+              <Link
                 href="/orders"
                 onClick={() => setOpen(false)}
                 className="w-full text-center py-2.5 text-white/80 font-roboto text-sm
@@ -80,7 +80,7 @@ export function MobileMenu({ isAuthenticated = false }) {
                 My Orders
               </Link>
               <form action={signOutAction} className="w-full h-2">
-                <button 
+                <button
                   type="submit"
                   className="w-full text-center py-2 text-red-400 font-roboto text-sm
                     hover:text-red-300 transition-colors duration-200
@@ -93,7 +93,7 @@ export function MobileMenu({ isAuthenticated = false }) {
             </>
           ) : (
             <>
-              <Link 
+              <Link
                 href="/auth/login"
                 onClick={() => setOpen(false)}
                 className="w-full text-center py-2.5 text-white/80 font-roboto text-sm
@@ -102,8 +102,8 @@ export function MobileMenu({ isAuthenticated = false }) {
               >
                 Sign in
               </Link>
-              <Link 
-                href="auth/sign-up"
+              <Link
+                href="/auth/sign-up"
                 onClick={() => setOpen(false)}
                 className="w-full text-center py-2.5 text-white/80 font-roboto text-sm
                   hover:text-white transition-colors duration-200 border-b border-white/5
@@ -113,7 +113,7 @@ export function MobileMenu({ isAuthenticated = false }) {
               </Link>
             </>
           )}
-          
+
           <div className="w-full flex justify-center mt-6 py-2.5 border-t border-white/5">
             <CurrencyIndicator variant="full" />
           </div>

@@ -31,9 +31,6 @@ export async function generateMetadata(
       description: `Find the best deals on Path of Exile ${category} for ${league} at PathofTrade.net. We offer cheap PoE currency, instant delivery, and 100% secure transactions for your ${gameVersion} gameplay.`,
       type: "website",
     }, 
-    alternates: {
-      canonical: `https://www.pathoftrade.net/products?league=${league}&gameVersion=${gameVersion}&category=${category}`,
-    },
   };
 }
 

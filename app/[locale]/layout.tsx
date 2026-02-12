@@ -15,19 +15,48 @@ import { setRequestLocale } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import TawkTo from "@/components/tawTo";
 
-export const metadata = {
-  metadataBase: new URL("https://www.pathoftrade.net"),
-  title:
-    "Buy POE 1 & 2 Currency | Cheap Divine Orbs, Exalts, Chaos - Path of Trade",
-  description:
-    "Buy Path of Exile Currency ✔️ Lowest Prices for Divine Orbs, Exalted Orbs. Instant Delivery, 24/7 Live Support. POE Trade Currency Securely at PathOfTrade.net!",
-  openGraph: {
-    title: "Buy POE Currency - Divine Orbs & Exalts | Path of Trade",
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const baseUrl = "https://www.pathoftrade.net";
+
+  return {
+    metadataBase: new URL(baseUrl),
+    title:
+      "Buy POE 1 & 2 Currency | Cheap Divine Orbs, Exalts, Chaos - Path of Trade",
     description:
-      "Cheap POE Currency Trading ⚡ Instant Delivery, 24/7 Support. Buy Divine Orbs, Exalts & Chaos Safely!",
-    images: [{ url: "/images/logo.webp" }],
-  },
-};
+      "Buy Path of Exile Currency ✔️ Lowest Prices for Divine Orbs, Exalted Orbs. Instant Delivery, 24/7 Live Support. POE Trade Currency Securely at PathOfTrade.net!",
+    openGraph: {
+      title: "Buy POE Currency - Divine Orbs & Exalts | Path of Trade",
+      description:
+        "Cheap POE Currency Trading ⚡ Instant Delivery, 24/7 Support. Buy Divine Orbs, Exalts & Chaos Safely!",
+      images: [{ url: "/images/logo.webp" }],
+      locale: locale,
+      type: "website",
+    },
+    alternates: {
+      canonical: locale === "en" ? "/" : `/${locale}`,
+      languages: {
+        en: "/en",
+        "pt-BR": "/pt-br",
+      },
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
+  };
+}
 
 
 const roboto = Roboto({
@@ -52,9 +81,9 @@ export default async function RootLayout({
   params
 }: Readonly<{
   children: React.ReactNode;
-  params: Promise<{locale: string}>;
+  params: Promise<{ locale: string }>;
 }>) {
-  const {locale} = await params;
+  const { locale } = await params;
 
   setRequestLocale(locale);
 
@@ -73,47 +102,47 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-                        <NextIntlClientProvider locale={locale}>
+          <NextIntlClientProvider locale={locale}>
 
-          <CurrencyProvider>
-            <CartProvider>
-              <nav className="w-full flex justify-center border-b border-b-foreground/10 h-18 mb-8">
-                <div className="w-full max-w-6xl flex items-center  text-sm">
-                  <div className="flex-1">{/* Left empty space */}</div>
-                  <div className="flex-1 flex justify-center">
-                    <Link href="/" className="py-3 flex items-center">
-                      <Image
-                        src="/images/logo.webp"
-                        alt="Path of Trade - Buy POE 1 & 2 Currency"
-                        width={110}
-                        height={55}
-                        className="h-auto w-auto"
-                        priority
-                        fetchPriority="high"
-                        quality={90}
-                        sizes="(max-width: 768px) 110px, 110px"
-                      />
-                    </Link>
-                  </div>
-                  <div className="flex-[1.2] flex justify-end items-center gap-3">
-                    <CartDropdown />
-                    <div className="hidden md:flex items-center gap-3">
-                      <HeaderAuth />
+            <CurrencyProvider>
+              <CartProvider>
+                <nav className="w-full flex justify-center border-b border-b-foreground/10 h-18 mb-8">
+                  <div className="w-full max-w-6xl flex items-center  text-sm">
+                    <div className="flex-1">{/* Left empty space */}</div>
+                    <div className="flex-1 flex justify-center">
+                      <Link href="/" className="py-3 flex items-center">
+                        <Image
+                          src="/images/logo.webp"
+                          alt="Path of Trade - Buy POE 1 & 2 Currency"
+                          width={110}
+                          height={55}
+                          className="h-auto w-auto"
+                          priority
+                          fetchPriority="high"
+                          quality={90}
+                          sizes="(max-width: 768px) 110px, 110px"
+                        />
+                      </Link>
                     </div>
-                    <div className="md:hidden flex items-center">
-                      <HeaderAuth />
+                    <div className="flex-[1.2] flex justify-end items-center gap-3">
+                      <CartDropdown />
+                      <div className="hidden md:flex items-center gap-3">
+                        <HeaderAuth />
+                      </div>
+                      <div className="md:hidden flex items-center">
+                        <HeaderAuth />
+                      </div>
                     </div>
                   </div>
-                </div>
-              </nav>
+                </nav>
 
-              {children}
-              <TawkTo />
-              <Footer />
-              <GoogleAnalytics gaId="G-G1790M45LN" />
-              <SpeedInsights />
-            </CartProvider>
-          </CurrencyProvider>
+                {children}
+                <TawkTo />
+                <Footer />
+                <GoogleAnalytics gaId="G-G1790M45LN" />
+                <SpeedInsights />
+              </CartProvider>
+            </CurrencyProvider>
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>

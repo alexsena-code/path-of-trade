@@ -43,7 +43,7 @@ export default async function AuthButton() {
             disabled
             className="w-24 h-9 opacity-75 cursor-none pointer-events-none"
           >
-            <Link href="auth/login">Sign in</Link>
+            <Link href="/auth/login">Sign in</Link>
           </Button>
           <Button
             asChild
@@ -52,7 +52,7 @@ export default async function AuthButton() {
             disabled
             className="w-24 h-9 opacity-75 cursor-none pointer-events-none"
           >
-            <Link href="auth/sign-up">Sign up</Link>
+            <Link href="/auth/sign-up">Sign up</Link>
           </Button>
         </div>
       </div>
@@ -69,7 +69,7 @@ export default async function AuthButton() {
       </div>
       <LocaleSwitcher />
       <div className="hidden md:block">
-   
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Avatar className="h-8 w-8 sm:h-9 sm:w-9 cursor-pointer hover:opacity-80 transition-opacity">
@@ -99,9 +99,9 @@ export default async function AuthButton() {
             </form>
           </DropdownMenuContent>
         </DropdownMenu>
-        
+
       </div>
-   
+
       <div className="block md:hidden">
         <MobileMenu isAuthenticated={true} />
       </div>
@@ -117,7 +117,7 @@ export default async function AuthButton() {
       <LocaleSwitcher />
       <div className="hidden md:flex gap-2 sm:gap-3">
 
-        
+
         <Button
           asChild
           size="sm"

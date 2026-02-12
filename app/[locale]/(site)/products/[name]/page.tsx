@@ -20,19 +20,30 @@ const formatPrice = (price: number): string => {
 };
 
 export const generateMetadata = async (props: {
-  params: Promise<{ name: string }>;
+  params: Promise<{ name: string; locale: string }>;
 }): Promise<Metadata> => {
   const params = await props.params;
   // Get a readable product name from the URL slug
   const productName = await parseProductSlug(params.name);
+  const { locale } = params;
+  const baseUrl = "https://www.pathoftrade.net";
+  const canonicalPath = locale === "en" ? `/products/${params.name}` : `/${locale}/products/${params.name}`;
 
   return {
     title: `Buy POE ${productName} | Fast & Safe Currency | PathofTrade.net`,
     description: `Buy cheap ${productName} for Path of Exile. Get your PoE currency instantly & securely from PathofTrade.net.`,
+    alternates: {
+      canonical: canonicalPath,
+      languages: {
+        en: `/products/${params.name}`,
+        "pt-BR": `/pt-br/products/${params.name}`,
+      },
+    },
     openGraph: {
       title: `Buy POE ${productName} | Fast & Safe Currency | PathofTrade.net`,
       description: `Buy cheap ${productName} for Path of Exile. Get your PoE currency instantly & securely from PathofTrade.net.`,
       type: "website",
+      locale: locale,
     },
   };
 };
@@ -104,47 +115,72 @@ export default async function ProductDetailPage(props: {
       { value: "path-of-exile-2", label: "Path of Exile 2" },
     ];
 
-    // Current selected values
-    const currentLeague = searchParams.league || product.league;
+    // --- SMART LEAGUE SELECTION START ---
+    // If no league param, try to find the "Challenge League" (not Standard/Hardcore)
+    let smartDefaultLeague = product.league;
+
+    if (!searchParams.league) {
+      // Find first active league that is NOT Standard/Hardcore
+      // Assuming "Standard" or "Hardcore" string presence identifies non-challenge leagues
+      const challengeLeague = leaguesData.find(l =>
+        !l.name.toLowerCase().includes('standard') &&
+        !l.name.toLowerCase().includes('hardcore')
+      );
+      if (challengeLeague) {
+        smartDefaultLeague = challengeLeague.name;
+      } else {
+        // Fallback to first available if strictly standard/hardcore
+        if (leaguesData.length > 0) smartDefaultLeague = leaguesData[0].name;
+      }
+    }
+
+    const currentLeague = searchParams.league || smartDefaultLeague;
+    // --- SMART LEAGUE SELECTION END ---
+
     const currentDifficulty = searchParams.difficulty || product.difficulty;
     let currentLocale = searchParams.locale || params.locale;
 
-    if(currentLocale === "pt-br") {
+    // Try to find the product variant for the selected/smart league
+    // This ensures price/image matches the actually selected league, not just the random first result
+    const smartProduct = products.find(p => p.league === currentLeague && p.difficulty === currentDifficulty) || product;
+
+    if (currentLocale === "pt-br") {
       currentLocale = "pt_br";
     }
 
     console.log(currentLocale);
 
-   
+    // Currency conversion logic for Schema (Approximation)
+    const isBr = currentLocale === "pt_br" || currentLocale === "pt-br";
+    const currency = isBr ? "BRL" : "USD";
+    const exchangeRate = 5.60; // Fallback rate matching context
+    const price = isBr ? Number((smartProduct.price * exchangeRate).toFixed(2)) : smartProduct.price;
 
     const productStructuredData = {
       "@context": "https://schema.org",
       "@type": "Product",
-      name: product.name,
-      description: productSanity?.body?.[0]?.children?.[0]?.text || product.name,
-      image: product.imgUrl,
+      name: smartProduct.name,
+      description: productSanity?.body?.[0]?.children?.[0]?.text || smartProduct.name,
+      image: smartProduct.imgUrl,
       brand: {
         "@type": "Brand",
-        name: product.gameVersion,
+        name: smartProduct.gameVersion,
       },
-      // You can add 'category' if applicable, e.g., "Virtual Goods > Game Currency"
-      // "category": `${product.gameVersion} ${product.category}`,
       offers: {
         "@type": "Offer",
-        url: `https://pathoftrade.net/products/${encodeURIComponent(product.name)}?league=${encodeURIComponent(product.league)}&difficulty=${encodeURIComponent(product.difficulty)}`,
-        priceCurrency: "USD",
-        price: product.price,
-        availability: "https://schema.org/InStock", // e.g., "https://schema.org/InStock"
+        url: `https://pathoftrade.net/${params.locale}/products/${encodeURIComponent(smartProduct.name)}`,
+        priceCurrency: currency,
+        price: price,
+        availability: "https://schema.org/InStock",
         priceValidUntil: new Date(new Date().setDate(new Date().getDate() + 30))
           .toISOString()
-          .split("T")[0], // Optional: Price valid for 30 days
+          .split("T")[0],
         seller: {
           "@type": "Organization",
           name: "Path of Trade Net",
-          url: "https://pathoftrade.net", // URL to your store homepage
+          url: "https://pathoftrade.net",
         },
       },
-      // Optional: Include AggregateRating if you have reviews for THIS specific produc
     };
 
     return (
@@ -162,8 +198,8 @@ export default async function ProductDetailPage(props: {
             <div className="p-4 md:p-6 flex items-center justify-center bg-black/10 rounded-lg">
               <div className="relative w-full aspect-square max-w-[200px] md:max-w-[250px]">
                 <Image
-                  src={product.imgUrl || "/images/placeholder.jpg"}
-                  alt={product.name}
+                  src={smartProduct.imgUrl || "/images/placeholder.jpg"}
+                  alt={smartProduct.name}
                   fill
                   sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-contain"
@@ -175,7 +211,7 @@ export default async function ProductDetailPage(props: {
 
             {/* Product Info */}
             <ProductDetail
-              product={product}
+              product={smartProduct}
               currentGameVersion={currentGameVersion}
               currentLeague={currentLeague}
               currentDifficulty={currentDifficulty}
