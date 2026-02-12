@@ -21,10 +21,19 @@ module.exports = {
     ]);
 
     locales.forEach(locale => {
+      // Helper for consistent slugification (matches utils/url-helper.ts)
+      const slugify = (str) => {
+        return str.normalize('NFD')
+          .toLowerCase()
+          .replace(/[\s\+\&\%\#\@\!\(\)\[\]\{\}\:\;\'\"\,\.\?\<\>\/\\\|]/g, '-')
+          .replace(/--+/g, '-')
+          .replace(/^-|-$/g, '');
+      };
+
       // Produtos (Clean URL)
       products.forEach((product) => {
         if (product && product.name) {
-          const cleanPath = `/${locale}/products/${encodeURIComponent(product.name)}`;
+          const cleanPath = `/${locale}/products/${encodeURIComponent(slugify(product.name))}`;
           paths.push({
             loc: cleanPath,
             lastmod: product.lastmod || defaultLastMod,

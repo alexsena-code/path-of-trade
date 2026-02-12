@@ -1,10 +1,11 @@
+```typescript
 import { getProductsWithParams, getLeagues } from "@/app/actions";
 import { Metadata } from "next";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Filters from "./filters";
-import { parseProductSlug } from "@/utils/url-helper";
+import { parseProductSlug, encodeProductName } from "@/utils/url-helper";
 import ProductDetail from "../../../../../components/product-detail";
 import { getProductBySlug } from "@/sanity/sanity-utils";
 import ProductContent from "@/components/product-detail/ProductContent";
@@ -25,23 +26,24 @@ export const generateMetadata = async (props: {
   const params = await props.params;
   // Get a readable product name from the URL slug
   const productName = await parseProductSlug(params.name);
+  const cleanSlug = encodeProductName(productName);
   const { locale } = params;
   const baseUrl = "https://www.pathoftrade.net";
-  const canonicalPath = locale === "en" ? `/products/${params.name}` : `/${locale}/products/${params.name}`;
+  const canonicalPath = locale === "en" ? `/ products / ${ cleanSlug } ` : ` / ${ locale } /products/${ cleanSlug } `;
 
   return {
-    title: `Buy POE ${productName} | Fast & Safe Currency | PathofTrade.net`,
-    description: `Buy cheap ${productName} for Path of Exile. Get your PoE currency instantly & securely from PathofTrade.net.`,
+    title: `Buy POE ${ productName } | Fast & Safe Currency | PathofTrade.net`,
+    description: `Buy cheap ${ productName } for Path of Exile.Get your PoE currency instantly & securely from PathofTrade.net.`,
     alternates: {
       canonical: canonicalPath,
       languages: {
-        en: `/products/${params.name}`,
-        "pt-BR": `/pt-br/products/${params.name}`,
+        en: `/ products / ${ cleanSlug } `,
+        "pt-BR": `/ pt - br / products / ${ cleanSlug } `,
       },
     },
     openGraph: {
-      title: `Buy POE ${productName} | Fast & Safe Currency | PathofTrade.net`,
-      description: `Buy cheap ${productName} for Path of Exile. Get your PoE currency instantly & securely from PathofTrade.net.`,
+      title: `Buy POE ${ productName } | Fast & Safe Currency | PathofTrade.net`,
+      description: `Buy cheap ${ productName } for Path of Exile.Get your PoE currency instantly & securely from PathofTrade.net.`,
       type: "website",
       locale: locale,
     },
@@ -63,6 +65,7 @@ export default async function ProductDetailPage(props: {
   try {
     // Get the decoded product name for searching
     const decodedName = await parseProductSlug(params.name);
+    const cleanSlug = encodeProductName(decodedName);
 
     // Use the decoded name to find the specific product
     const products = await getProductsWithParams({
@@ -168,75 +171,75 @@ export default async function ProductDetailPage(props: {
       },
       offers: {
         "@type": "Offer",
-        url: `https://pathoftrade.net/${params.locale}/products/${encodeURIComponent(smartProduct.name)}`,
-        priceCurrency: currency,
-        price: price,
-        availability: "https://schema.org/InStock",
-        priceValidUntil: new Date(new Date().setDate(new Date().getDate() + 30))
-          .toISOString()
-          .split("T")[0],
+        url: `https://pathoftrade.net/${params.locale}/products/${cleanSlug}`,
+priceCurrency: currency,
+  price: price,
+    availability: "https://schema.org/InStock",
+      priceValidUntil: new Date(new Date().setDate(new Date().getDate() + 30))
+        .toISOString()
+        .split("T")[0],
         seller: {
-          "@type": "Organization",
-          name: "Path of Trade Net",
-          url: "https://pathoftrade.net",
+  "@type": "Organization",
+    name: "Path of Trade Net",
+      url: "https://pathoftrade.net",
         },
       },
     };
 
-    return (
-      <div className="container mx-auto py-6 md:py-12 px-4">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(productStructuredData),
-          }}
-        />
+return (
+  <div className="container mx-auto py-6 md:py-12 px-4">
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify(productStructuredData),
+      }}
+    />
 
-        <div className="max-w-6xl mx-auto rounded-lg overflow-hidden">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-            {/* Product Image */}
-            <div className="p-4 md:p-6 flex items-center justify-center bg-black/10 rounded-lg">
-              <div className="relative w-full aspect-square max-w-[200px] md:max-w-[250px]">
-                <Image
-                  src={smartProduct.imgUrl || "/images/placeholder.jpg"}
-                  alt={smartProduct.name}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-contain"
-                  quality={100}
-                  priority
-                />
-              </div>
-            </div>
-
-            {/* Product Info */}
-            <ProductDetail
-              product={smartProduct}
-              currentGameVersion={currentGameVersion}
-              currentLeague={currentLeague}
-              currentDifficulty={currentDifficulty}
-              gameVersionOptions={gameVersionOptions}
-              leagueOptions={leagueOptions}
-              difficultyOptions={difficultyOptions}
-              productName={decodedName}
+    <div className="max-w-6xl mx-auto rounded-lg overflow-hidden">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+        {/* Product Image */}
+        <div className="p-4 md:p-6 flex items-center justify-center bg-black/10 rounded-lg">
+          <div className="relative w-full aspect-square max-w-[200px] md:max-w-[250px]">
+            <Image
+              src={smartProduct.imgUrl || "/images/placeholder.jpg"}
+              alt={smartProduct.name}
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-contain"
+              quality={100}
+              priority
             />
           </div>
         </div>
 
-        {/* Description Section */}
-        {productSanity?.body && (
-          <div className="p-4 md:p-6 mt-6 md:mt-12 bg-muted/10 rounded-lg">
-            <h2 className="text-lg font-semibold text-gray-100/40 mb-4">Description</h2>
-            <ProductContent content={productSanity.body[currentLocale]} />
-          </div>
-        )}
+        {/* Product Info */}
+        <ProductDetail
+          product={smartProduct}
+          currentGameVersion={currentGameVersion}
+          currentLeague={currentLeague}
+          currentDifficulty={currentDifficulty}
+          gameVersionOptions={gameVersionOptions}
+          leagueOptions={leagueOptions}
+          difficultyOptions={difficultyOptions}
+          productName={decodedName}
+        />
       </div>
-    );
+    </div>
+
+    {/* Description Section */}
+    {productSanity?.body && (
+      <div className="p-4 md:p-6 mt-6 md:mt-12 bg-muted/10 rounded-lg">
+        <h2 className="text-lg font-semibold text-gray-100/40 mb-4">Description</h2>
+        <ProductContent content={productSanity.body[currentLocale]} />
+      </div>
+    )}
+  </div>
+);
   } catch (error) {
-    return (
-      <div className="text-red-500 p-4">
-        Error loading product: {(error as Error).message}
-      </div>
-    );
-  }
+  return (
+    <div className="text-red-500 p-4">
+      Error loading product: {(error as Error).message}
+    </div>
+  );
+}
 }

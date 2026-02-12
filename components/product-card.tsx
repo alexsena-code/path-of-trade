@@ -10,9 +10,8 @@ import { useCurrency } from "@/lib/contexts/currency-context";
 import { useCart } from "@/lib/contexts/cart-context";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
-
-
+import { useTranslations, useLocale } from "next-intl";
+import { getProductUrl } from "@/utils/url-helper";
 
 interface ProductCardProps {
   product: Product;
@@ -20,6 +19,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const t = useTranslations("ProductCard");
+  const locale = useLocale();
   const [count, setCount] = useState(1);
   const { formatPrice, currency, convertPrice } = useCurrency();
   const { addToCart } = useCart();
@@ -62,7 +62,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const handleBuyNow = async () => {
     setError(null);
     setIsProcessing(true);
-    
+
     try {
       // Add to cart with original price
       addToCart(product, count);
@@ -85,8 +85,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   const displayPrice = convertPrice(product.price);
   const totalPrice = displayPrice * count;
 
-  // Create URL with parameters
-  const productDetailUrl = `/products/${encodeURIComponent(product.name)}?gameVersion=${encodeURIComponent(product.gameVersion)}&league=${encodeURIComponent(product.league)}&difficulty=${encodeURIComponent(product.difficulty)}`;
+  // Create URL with parameters using centralized helper (Clean URL)
+  const productDetailUrl = getProductUrl(product.name, locale, product.league, product.difficulty);
 
   return (
     <Card className="inline-block max-w-70 bg-black/10 min-w-40 overflow-hidden shadow-md hover:shadow-lg transition-shadow m-3 outline-none ">
@@ -96,12 +96,12 @@ export default function ProductCard({ product }: ProductCardProps) {
             <Image
               src={product.imgUrl}
               alt={product.alt || product.name}
-              fill                
+              fill
               sizes="(max-width: 640px) 96px, (max-width: 768px) 112px, 80px"
               className="object-contain hover:scale-105 transition-transform duration-300"
               quality={100}
               priority
-              onError={(e) => {                                   
+              onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.src = '/placeholder.png'; // Fallback image
                 target.alt = t('placeholderImageAlt');
@@ -111,7 +111,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
 
         <CardFooter className="flex flex-col items-center">
-          <Link 
+          <Link
             href={productDetailUrl}
             className="hover:text-indigo-600 transition-colors duration-200"
           >
@@ -156,13 +156,13 @@ export default function ProductCard({ product }: ProductCardProps) {
           <span className="text-xl font-bold text-primary inline-flex mb-3">
             {formatPrice(totalPrice)}
           </span>
-          
+
           {error && (
             <div className="text-red-500 text-sm mb-2 text-center">
               {error}
             </div>
           )}
-          
+
           <div className="flex flex-wrap min-w-64 justify-center gap-2 mb-2">
             <Button
               className="bg-green-500 min-w-28  text-black hover:bg-green-600 hover:scale-105 transition-transform duration-300 hover:text-white text-md font-bold rounded-sm  "
@@ -180,7 +180,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               {t('addToCart')}
             </Button>
           </div>
-          
+
           <Link href={productDetailUrl} className="text-indigo-600 hover:text-indigo-800 flex items-center text-sm mt-2">
             <Info className="h-4 w-4 mr-1" /> {t('viewDetails')}
           </Link>

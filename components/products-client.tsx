@@ -7,7 +7,7 @@ import { ProductSkeleton } from "./ui/skeleton";
 import { Input } from "./ui/input";
 import { Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import FiltersToggle from "./filters-toggle";
 
 interface ProductsClientProps {
@@ -21,6 +21,7 @@ interface ProductsClientProps {
 
 export default function ProductsClient({ products, initialFilters }: ProductsClientProps) {
   const t = useTranslations('Products');
+  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
@@ -41,7 +42,7 @@ export default function ProductsClient({ products, initialFilters }: ProductsCli
     if (category && buttons.some(b => b.value === category)) {
       setSelectedFilter(category);
     }
-    
+
     const search = searchParams.get("search");
     if (search) {
       setSearchTerm(search);
@@ -58,36 +59,36 @@ export default function ProductsClient({ products, initialFilters }: ProductsCli
 
   const filterTags = (products: Product[]): Product[] => {
     let filteredProducts = products;
-    
+
     // Apply category filter
     if (selectedFilter.toLowerCase() !== "all categories") {
       filteredProducts = filteredProducts.filter(
         (el) => el.category.toLowerCase() === selectedFilter.toLowerCase()
       );
     }
-    
+
     // Apply search term filter (client-side)
     if (searchTerm.trim() !== "") {
       filteredProducts = filteredProducts.filter(
         (product) => product.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-    
+
     return filteredProducts;
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Update URL with search parameters
     const params = new URLSearchParams(searchParams.toString());
-    
+
     if (searchTerm) {
       params.set("search", searchTerm);
     } else {
       params.delete("search");
     }
-    
+
     // Find the button object corresponding to selectedFilter
     const selectedButton = buttons.find(button => button.value === selectedFilter || button.label === selectedFilter);
 
@@ -96,8 +97,8 @@ export default function ProductsClient({ products, initialFilters }: ProductsCli
     } else {
       params.delete("category");
     }
-    
-    router.push(`/products?${params.toString()}`);
+
+    router.push(`/${locale}/products?${params.toString()}`);
   };
 
   const filteredList = filterTags(products);
@@ -113,9 +114,8 @@ export default function ProductsClient({ products, initialFilters }: ProductsCli
               <Button
                 key={button.value}
                 variant="secondary"
-                className={`flex-1 sm:flex-none min-w-[100px] text-sm md:text-base font-bold hover:bg-indigo-600 ${
-                  selectedFilter === button.value ? "bg-indigo-600 text-white" : ""
-                }`}
+                className={`flex-1 sm:flex-none min-w-[100px] text-sm md:text-base font-bold hover:bg-indigo-600 ${selectedFilter === button.value ? "bg-indigo-600 text-white" : ""
+                  }`}
                 onClick={() => setSelectedFilter(button.value)}
                 aria-label={`Filter by ${button.label}`}
               >
@@ -136,10 +136,10 @@ export default function ProductsClient({ products, initialFilters }: ProductsCli
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pr-10"
                 />
-                <Button 
-                  type="submit" 
-                  size="icon" 
-                  variant="ghost" 
+                <Button
+                  type="submit"
+                  size="icon"
+                  variant="ghost"
                   className="absolute right-0 top-0 h-full"
                 >
                   <Search className="h-4 w-4" />
