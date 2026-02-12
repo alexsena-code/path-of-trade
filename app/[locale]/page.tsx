@@ -49,6 +49,23 @@ const structuredData = {
   },
 };
 
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  return {
+    alternates: {
+      canonical: locale === "en" ? "/" : `/${locale}`,
+      languages: {
+        en: "/en",
+        "pt-BR": "/pt-br",
+      },
+    },
+  };
+}
+
 export default function Home() {
   const t = useTranslations("HomePage");
 

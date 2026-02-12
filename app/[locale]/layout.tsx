@@ -37,13 +37,6 @@ export async function generateMetadata({
       locale: locale,
       type: "website",
     },
-    alternates: {
-      canonical: locale === "en" ? "/" : `/${locale}`,
-      languages: {
-        en: "/en",
-        "pt-BR": "/pt-br",
-      },
-    },
     robots: {
       index: true,
       follow: true,
